@@ -1,0 +1,321 @@
+---
+title: "Linear Regression from Scratch"
+subtitle: "Building a Simple Linear Model to Better Understand Regression Methods"
+author: "Paul Johnson"
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# import packages
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(gt)
+})
+
+# set plot theme
+theme_set(scwplot::theme_scw(base_size = 10)) +
+  theme_update(
+    plot.title = element_text(margin = margin(b = 5)),
+    legend.text = element_text(colour = "#5D5F5F", size = rel(.8)),
+    legend.key.width = unit(.75, "cm"),
+    plot.margin = margin(c(t = .5, r = 0, b = .5, l = .5), unit = "cm")
+  )
+
+# import data
+df <- 
+  readr::read_csv(here::here("data", "student-performance.csv")) |> 
+  mutate(across(where(is.character), as.factor))
+```
+
+# The Fundamentals of Regression {data-background-color="#425563" data-verticator="#E8EDEE"}
+
+Get in Loser, We're **Fitting Lines to Data**
+
+## What is Regression? {.center}
+
+- Regression models predict an outcome variable from a set of predictors. This can take the form of straight lines fit through the data, to many non-linear generalisations [@gelman2021].
+- Regression can be used to describe the association between variables, estimate the effect that a treatment has on an outcome, or predict how an outcome will change in response to changes in the predictor variables.
+- It is the foundation for many advanced statistical methods, and it is one of the most important tools available to an analyst seeking to use a sample to make inferences or predictions about the population [@rowntree2018].
+- While powerful, the method itself is (relatively) simple, when boiled down to its component parts.
+
+## It's All About the (Co)Variance {.center}
+
+- It is possible to make predictions or estimate effects between quantities of interest by analysing how they vary, both independently and together.
+- The extent to which the predictor variable, $X$, and the outcome, $Y$, move together is called "covariance".
+  - A positive covariance indicates that the value of $Y$ increases when $X$ increases, and a negative covariance indicates that $Y$ decreases when $X$ decreases.
+- Regression fits a line through data that estimate how the outcome variable changes when the value of the predictor variable(s) change. Finding the line that does the most effective job of passing through the data helps describe the relationship between the variables, or predict the outcome from the predictors.
+- This doesn't sound like much, but it's a surprisingly powerful idea.
+
+## Fitting a Line Through Data {.center}
+
+- At it's most basic conceptual level, regression is just finding the line of best fit through the data. 
+  - The complexity comes in the need to use precise, unbiased methods to find the "best" fit.
+- There are various "estimators" that can be used to fit a straight line to data, but the most common method is called ordinary least squares (OLS).
+- OLS finds the line of best fit by minimising the total distance between the line and all observed values. The distance between the line, which represents the model's fitted values (or the predicted value of $Y$ given $X$) and each observed value in the data is known as the residual.
+- All paths lead to minimising the residuals.
+
+## Visualising the Outcome Distribution {.center}
+
+```{r}
+#| label: outcome-dist
+
+df |> 
+  ggplot(aes(x = exam_score)) +
+  geom_histogram(binwidth = 1) +
+  labs(x = "Exam Score", y = NULL)
+```
+
+## Visualising the Outcome Distribution {.center}
+
+```{r}
+#| label: filtered-outcome-dist
+
+df <- df |> filter(exam_score < 80)
+  
+df |> 
+  ggplot(aes(x = exam_score)) +
+  geom_histogram(binwidth = 1) +
+  labs(x = "Exam Score", y = NULL)
+```
+
+## Visualising the Covariance {.center}
+
+```{r}
+#| label: variance
+
+df |> 
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  labs(x = "Hours Studied", y = "Exam Score")
+```
+
+## Fitting a Regression Line {.center}
+
+```{r}
+#| label: regression-line
+
+df |> 
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_smooth(
+    method = lm, se = FALSE, linewidth = 1, colour = "#005EB8"
+    ) +
+  labs(x = "Hours Studied", y = "Exam Score")
+```
+
+## Finding the Line of "Best Fit" {.center}
+
+```{r}
+#| label: fitted-values
+
+model <- lm(exam_score ~ hours_studied, data = df)
+
+df <-
+  df |> 
+  mutate(
+    fitted = model$fitted.values, 
+    residual = model$residuals
+    )
+
+df |> 
+  select(hours_studied, exam_score, fitted, residual) |> 
+  janitor::clean_names(case = "title") |> 
+  slice_sample(n = 10) |> 
+  gt() |> 
+  fmt_number(columns = c(Fitted, Residual), decimals = 2) |> 
+  cols_align(align = "center", columns = everything())
+```
+
+## Finding the Line of "Best Fit" {.center}
+
+```{r}
+#| label: residuals
+
+df |> 
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_segment(
+    aes(
+      x = hours_studied, y= fitted, 
+      xend = hours_studied, yend = fitted + residual
+      ), 
+    linewidth = 1, color = "#ED8B00"
+    ) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_line(
+    aes(x = hours_studied, y = fitted), 
+    linewidth = 1, colour = "#005EB8"
+    ) +
+  labs(x = "Hours Studied", y = "Exam Score")
+```
+
+## Finding the Line of "Best Fit" {.center}
+
+```{r}
+#| label: residuals-sample
+
+df |>
+  slice_sample(n = 10) |> 
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_segment(
+    aes(
+      x = hours_studied, y= fitted, 
+      xend = hours_studied, yend = fitted + residual
+      ), 
+    linewidth = 1, color = "#ED8B00"
+    ) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_line(
+    aes(x = hours_studied, y = fitted), 
+    linewidth = 1, colour = "#005EB8"
+    ) +
+  labs(x = "Hours Studied", y = "Exam Score")
+```
+
+## Finding the Line of "Best Fit" {.center}
+
+```{r}
+#| label: residuals-bigger-sample
+
+df |>
+  slice_sample(n = 100) |> 
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_segment(
+    aes(
+      x = hours_studied, y= fitted, 
+      xend = hours_studied, yend = fitted + residual
+      ), 
+    linewidth = 1, color = "#ED8B00"
+    ) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_line(
+    aes(x = hours_studied, y = fitted), 
+    linewidth = 1, colour = "#005EB8"
+    ) +
+  labs(x = "Hours Studied", y = "Exam Score")
+```
+
+## Finding the Line of "Best Fit" {.center}
+
+```{r}
+#| label: residuals-full-sample
+
+df |>
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_segment(
+    aes(
+      x = hours_studied, y= fitted, 
+      xend = hours_studied, yend = fitted + residual
+      ), 
+    linewidth = 1, color = "#ED8B00"
+    ) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_line(
+    aes(x = hours_studied, y = fitted), 
+    linewidth = 1, colour = "#005EB8"
+    ) +
+  labs(x = "Hours Studied", y = "Exam Score")
+```
+
+## Minimising the Residuals {.center}
+
+- A regression line must pass through the data by taking the path that minimises the residuals for each fitted value. 
+  - But a line that minimises the residuals in one area may lead to increases in the residual in another area of the data. This is an optimisation problem!
+- The least squares estimator takes the residual value of all of the regression's predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.
+  - Squaring the value of each residual ensures sure that all values are positive, so that they don't cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS). 
+  - $\text{RSS} = \sum_{i=1}^n (y_i - (\beta_0 + \beta_1 x_i))^2$
+- Finding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!
+
+## Solve $\beta_0$ and $\beta_1$; Minimise RSS {.center .smaller}
+
+- $\text{Residual Sum of Squares (RSS)} = \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
+
+- Minimising RSS gives us the line that best fits the data, but we don't know what $\beta_0$ or $\beta_1$ are!
+
+- Minimize RSS (Solve for $\beta_0$, then $\beta_1$)
+
+::::::{.columns}
+:::::{.column}
+
+
+  1. $\frac{\partial}{\partial \beta_0} \text{RSS} = \frac{\partial}{\partial \beta_0} \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
+  2. $\frac{\partial}{\partial \beta_0} \text{RSS} = -2 \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)$
+  3. $\sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right) = 0$
+  4. $n \beta_0 + \beta_1 \sum_{i=1}^n x_i = \sum_{i=1}^n y_i$
+  5. $\beta_0 = \bar{y} - \beta_1 \bar{x}$
+
+:::::
+:::::{.column}
+  
+  1. $\frac{\partial}{\partial \beta_1} \text{RSS} = \frac{\partial}{\partial \beta_1} \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
+  2. $\frac{\partial}{\partial \beta_1} \text{RSS} = -2 \sum_{i=1}^n x_i \left( y_i - (\beta_0 + \beta_1 x_i) \right)$
+  3. $\sum_{i=1}^n x_i \left( y_i - (\beta_0 + \beta_1 x_i) \right) = 0$
+  4. $\beta_1 = \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2}$
+
+:::::
+::::::
+
+- Final Coefficients - $\beta_1 = \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2} = \frac{\text{Cov}(X, Y)}{\text{Var}(X)}$ ; $\beta_0 = \bar{y} - \beta_1 \bar{x}$
+
+
+# The Components of Simple Linear Regression {data-background-color="#425563" data-verticator="#E8EDEE"}
+
+Our good friends $\beta_1$, $\beta_0$, and $\epsilon$.
+
+## The Most Perfect Little Equation {.center}
+
+- The formula for a simple linear regression model, predicting $Y$ with one predictor $X$, is as follows: 
+
+$$Y = \beta_0 + \beta_1 X + \epsilon$$
+
+- This breaks the problem down into three main components, and estimates two parameters:
+  - $\beta_1$ - The slope, estimating the effect that $X$ has on the outcome, $Y$. 
+  - $\beta_0$ - The intercept, estimating the average value of $Y$ when $X = 0$. and the intercept ($beta_0$)
+  - $\epsilon$ - The error term (the unexplained variance), capturing the remaining variance in the outcome $Y$ that is not explained by the rest of the model.
+
+## Calculating the Regression Slope ($\beta_1$) {.center}
+
+$$\beta_1 = \frac{\text{Cov}(X, Y)}{\text{Var}(X)} = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i - \bar{x})^2} $$
+
+
+## Calculating the Regression Intercept ($\beta_0$) {.center}
+
+$$\beta_0 = \bar{y} - \beta_1 \bar{x} $$
+
+## Predicting the Outcome ($\hat{y}$) {.center}
+
+$$\hat{y}_i = \beta_0 + \beta_1 x_i $$
+
+# Let's Write Some Code! {data-background-color="#425563" data-verticator="#E8EDEE"}
+
+# Adding Variables to Our Model {data-background-color="#425563" data-verticator="#E8EDEE"}
+
+I've Got All These Variables, What if I Just Regressed Them?
+
+## Putting it All Together {.center}
+
+- At its heart, regression is relatively simple. It is just fitting a line of best fit to your data.
+- The component parts of a regression model, which allow us to estimate the effect of $X$ on $Y$, are really just estimating how much of the variance in $Y$ can be explained by $X$, by estimating how the two vary together.
+- Linear regression is not magic (though it is often so effective that I continue to feel like it is kind of magic). 
+  - The magic was within you all along (it's theory, you build good theory and that makes good regressions).
+
+# Thank You!
+
+Contact:
+<br>
+
+<ul >
+{{< fa solid envelope >}} [paul.johnson50@nhs.net](mailto: paul.johnson50@nhs.net)
+</ul>
+
+
+Code & Slides:
+<br>
+
+<ul >
+{{< fa brands github >}}[/NHS-South-Central-and-West/linear-regression-from-scratch](https://github.com/nhs-south-central-and-west/linear-regression-from-scratch)
+</ul>
+
+## References
