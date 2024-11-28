@@ -21,25 +21,32 @@
     "text": "Fitting a Line Through Data\n\nAt it’s most basic conceptual level, regression is just finding the line of best fit through the data.\n\nThe complexity comes in the need to use precise, unbiased methods to find the “best” fit.\n\nThere are various “estimators” that can be used to fit a straight line to data, but the most common method is called ordinary least squares (OLS).\nOLS finds the line of best fit by minimising the total distance between the line and all observed values. The distance between the line, which represents the model’s fitted values (or the predicted value of \\(Y\\) given \\(X\\)) and each observed value in the data is known as the residual.\nAll paths lead to minimising the residuals."
   },
   {
-    "objectID": "index.html#visualising-the-outcome-distribution",
-    "href": "index.html#visualising-the-outcome-distribution",
+    "objectID": "index.html#visualising-the-outcome-variance",
+    "href": "index.html#visualising-the-outcome-variance",
     "title": "Linear Regression from Scratch",
-    "section": "Visualising the Outcome Distribution",
-    "text": "Visualising the Outcome Distribution\n\n\ndf |&gt; \n  ggplot(aes(x = exam_score)) +\n  geom_histogram(binwidth = 1) +\n  labs(x = \"Exam Score\", y = NULL)"
+    "section": "Visualising the Outcome Variance",
+    "text": "Visualising the Outcome Variance\n\n\ndf |&gt; \n  ggplot(aes(x = exam_score)) +\n  geom_histogram(binwidth = 1) +\n  labs(x = \"Exam Score\", y = NULL)"
   },
   {
-    "objectID": "index.html#visualising-the-outcome-distribution-1",
-    "href": "index.html#visualising-the-outcome-distribution-1",
+    "objectID": "index.html#visualising-the-outcome-variance-1",
+    "href": "index.html#visualising-the-outcome-variance-1",
     "title": "Linear Regression from Scratch",
-    "section": "Visualising the Outcome Distribution",
-    "text": "Visualising the Outcome Distribution\n\n\ndf &lt;- df |&gt; filter(exam_score &lt; 80)\n  \ndf |&gt; \n  ggplot(aes(x = exam_score)) +\n  geom_histogram(binwidth = 1) +\n  labs(x = \"Exam Score\", y = NULL)"
+    "section": "Visualising the Outcome Variance",
+    "text": "Visualising the Outcome Variance\n\n\ndf &lt;- df |&gt; filter(exam_score &lt; 80)\n  \ndf |&gt; \n  ggplot(aes(x = exam_score)) +\n  geom_histogram(binwidth = 1) +\n  labs(x = \"Exam Score\", y = NULL)"
   },
   {
-    "objectID": "index.html#visualising-the-covariance",
-    "href": "index.html#visualising-the-covariance",
+    "objectID": "index.html#visualising-the-predictor-variance",
+    "href": "index.html#visualising-the-predictor-variance",
     "title": "Linear Regression from Scratch",
-    "section": "Visualising the Covariance",
-    "text": "Visualising the Covariance\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
+    "section": "Visualising the Predictor Variance",
+    "text": "Visualising the Predictor Variance\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied)) +\n  geom_histogram(binwidth = 1) +\n  labs(x = \"Hours Studied\", y = NULL)"
+  },
+  {
+    "objectID": "index.html#visualising-their-covariance",
+    "href": "index.html#visualising-their-covariance",
+    "title": "Linear Regression from Scratch",
+    "section": "Visualising their Covariance",
+    "text": "Visualising their Covariance\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
   },
   {
     "objectID": "index.html#fitting-a-regression-line",
@@ -53,7 +60,7 @@
     "href": "index.html#finding-the-line-of-best-fit",
     "title": "Linear Regression from Scratch",
     "section": "Finding the Line of “Best Fit”",
-    "text": "Finding the Line of “Best Fit”\n\n\nmodel &lt;- lm(exam_score ~ hours_studied, data = df)\n\ndf &lt;-\n  df |&gt; \n  mutate(\n    fitted = model$fitted.values, \n    residual = model$residuals\n    )\n\ndf |&gt; \n  select(hours_studied, exam_score, fitted, residual) |&gt; \n  janitor::clean_names(case = \"title\") |&gt; \n  slice_sample(n = 10) |&gt; \n  gt() |&gt; \n  fmt_number(columns = c(Fitted, Residual), decimals = 2) |&gt; \n  cols_align(align = \"center\", columns = everything())\n\n\n\n\n\n\n\n\nHours Studied\nExam Score\nFitted\nResidual\n\n\n\n\n8\n61\n63.58\n−2.58\n\n\n17\n65\n66.20\n−1.20\n\n\n20\n68\n67.08\n0.92\n\n\n15\n66\n65.62\n0.38\n\n\n23\n70\n67.95\n2.05\n\n\n21\n70\n67.37\n2.63\n\n\n22\n67\n67.66\n−0.66\n\n\n9\n65\n63.87\n1.13\n\n\n27\n67\n69.12\n−2.12\n\n\n11\n64\n64.45\n−0.45"
+    "text": "Finding the Line of “Best Fit”\n\n\nmodel &lt;- lm(exam_score ~ hours_studied, data = df)\n\ndf &lt;-\n  df |&gt; \n  mutate(\n    fitted = model$fitted.values, \n    residual = model$residuals\n    )\n\ndf |&gt; \n  select(hours_studied, exam_score, fitted, residual) |&gt; \n  janitor::clean_names(case = \"title\") |&gt; \n  slice_sample(n = 10) |&gt; \n  gt() |&gt; \n  fmt_number(columns = c(Fitted, Residual), decimals = 2) |&gt; \n  cols_align(align = \"center\", columns = everything())\n\n\n\n\n\n\n\n\nHours Studied\nExam Score\nFitted\nResidual\n\n\n\n\n13\n64\n65.03\n−1.03\n\n\n16\n65\n65.91\n−0.91\n\n\n22\n65\n67.66\n−2.66\n\n\n9\n63\n63.87\n−0.87\n\n\n14\n67\n65.33\n1.67\n\n\n16\n68\n65.91\n2.09\n\n\n16\n68\n65.91\n2.09\n\n\n21\n65\n67.37\n−2.37\n\n\n20\n65\n67.08\n−2.08\n\n\n12\n66\n64.74\n1.26"
   },
   {
     "objectID": "index.html#finding-the-line-of-best-fit-1",
@@ -88,21 +95,21 @@
     "href": "index.html#minimising-the-residuals",
     "title": "Linear Regression from Scratch",
     "section": "Minimising the Residuals",
-    "text": "Minimising the Residuals\n\nA regression line must pass through the data by taking the path that minimises the residuals for each fitted value.\n\nBut a line that minimises the residuals in one area may lead to increases in the residual in another area of the data. This is an optimisation problem!\n\nThe least squares estimator takes the residual value of all of the regression’s predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.\n\nSquaring the value of each residual ensures sure that all values are positive, so that they don’t cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS).\n\\(\\text{RSS} = \\sum_{i=1}^n (y_i - (\\beta_0 + \\beta_1 x_i))^2\\)\n\nFinding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!"
+    "text": "Minimising the Residuals\n\nThe least squares estimator takes the residual value of all of the regression’s predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.\n\nSquaring the value of each residual ensures sure that all values are positive, so that they don’t cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS).\n\\(\\text{RSS} = \\sum_{i=1}^n (y_i - (\\beta_0 + \\beta_1 x_i))^2\\)\n\nFinding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!"
   },
   {
-    "objectID": "index.html#solve-beta_0-and-beta_1-minimise-rss",
-    "href": "index.html#solve-beta_0-and-beta_1-minimise-rss",
+    "objectID": "index.html#solve-for-beta_0-and-beta_1-minimise-rss",
+    "href": "index.html#solve-for-beta_0-and-beta_1-minimise-rss",
     "title": "Linear Regression from Scratch",
-    "section": "Solve \\(\\beta_0\\) and \\(\\beta_1\\); Minimise RSS",
-    "text": "Solve \\(\\beta_0\\) and \\(\\beta_1\\); Minimise RSS\n\n\\(\\text{Residual Sum of Squares (RSS)} = \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)^2\\)\nMinimising RSS gives us the line that best fits the data, but we don’t know what \\(\\beta_0\\) or \\(\\beta_1\\) are!\nMinimize RSS (Solve for \\(\\beta_0\\), then \\(\\beta_1\\))\n\n\n\n\n\\(\\frac{\\partial}{\\partial \\beta_0} \\text{RSS} = \\frac{\\partial}{\\partial \\beta_0} \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)^2\\)\n\\(\\frac{\\partial}{\\partial \\beta_0} \\text{RSS} = -2 \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)\\)\n\\(\\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right) = 0\\)\n\\(n \\beta_0 + \\beta_1 \\sum_{i=1}^n x_i = \\sum_{i=1}^n y_i\\)\n\\(\\beta_0 = \\bar{y} - \\beta_1 \\bar{x}\\)\n\n\n\n\\(\\frac{\\partial}{\\partial \\beta_1} \\text{RSS} = \\frac{\\partial}{\\partial \\beta_1} \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)^2\\)\n\\(\\frac{\\partial}{\\partial \\beta_1} \\text{RSS} = -2 \\sum_{i=1}^n x_i \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)\\)\n\\(\\sum_{i=1}^n x_i \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right) = 0\\)\n\\(\\beta_1 = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum_{i=1}^n (x_i - \\bar{x})^2}\\)\n\n\n\nFinal Coefficients - \\(\\beta_1 = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum_{i=1}^n (x_i - \\bar{x})^2} = \\frac{\\text{Cov}(X, Y)}{\\text{Var}(X)}\\) ; \\(\\beta_0 = \\bar{y} - \\beta_1 \\bar{x}\\)"
+    "section": "Solve for \\(\\beta_0\\) and \\(\\beta_1\\); Minimise RSS",
+    "text": "Solve for \\(\\beta_0\\) and \\(\\beta_1\\); Minimise RSS\n\n\\(\\text{Residual Sum of Squares (RSS)} = \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)^2\\)\nMinimising RSS gives us the line that best fits the data, but we don’t know what \\(\\beta_0\\) or \\(\\beta_1\\) are!\nMinimize RSS (Solve for \\(\\beta_0\\), then \\(\\beta_1\\))\n\n\n\n\n\\(\\frac{\\partial}{\\partial \\beta_0} \\text{RSS} = \\frac{\\partial}{\\partial \\beta_0} \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)^2\\)\n\\(\\frac{\\partial}{\\partial \\beta_0} \\text{RSS} = -2 \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)\\)\n\\(\\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right) = 0\\)\n\\(n \\beta_0 + \\beta_1 \\sum_{i=1}^n x_i = \\sum_{i=1}^n y_i\\)\n\\(\\beta_0 = \\bar{y} - \\beta_1 \\bar{x}\\)\n\n\n\n\\(\\frac{\\partial}{\\partial \\beta_1} \\text{RSS} = \\frac{\\partial}{\\partial \\beta_1} \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)^2\\)\n\\(\\frac{\\partial}{\\partial \\beta_1} \\text{RSS} = -2 \\sum_{i=1}^n x_i \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)\\)\n\\(\\sum_{i=1}^n x_i \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right) = 0\\)\n\\(\\beta_1 = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum_{i=1}^n (x_i - \\bar{x})^2}\\)\n\n\n\nFinal Coefficients - \\(\\beta_1 = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum_{i=1}^n (x_i - \\bar{x})^2} = \\frac{\\text{Cov}(X, Y)}{\\text{Var}(X)}\\) ; \\(\\beta_0 = \\bar{y} - \\beta_1 \\bar{x}\\)"
   },
   {
     "objectID": "index.html#the-most-perfect-little-equation",
     "href": "index.html#the-most-perfect-little-equation",
     "title": "Linear Regression from Scratch",
     "section": "The Most Perfect Little Equation",
-    "text": "The Most Perfect Little Equation\n\nThe formula for a simple linear regression model, predicting \\(Y\\) with one predictor \\(X\\), is as follows:\n\n\\[Y = \\beta_0 + \\beta_1 X + \\epsilon\\]\n\nThis breaks the problem down into three main components, and estimates two parameters:\n\n\\(\\beta_1\\) - The slope, estimating the effect that \\(X\\) has on the outcome, \\(Y\\).\n\\(\\beta_0\\) - The intercept, estimating the average value of \\(Y\\) when \\(X = 0\\). and the intercept (\\(beta_0\\))\n\\(\\epsilon\\) - The error term (the unexplained variance), capturing the remaining variance in the outcome \\(Y\\) that is not explained by the rest of the model."
+    "text": "The Most Perfect Little Equation\n\nThe formula for a simple linear regression model, predicting \\(Y\\) with one predictor \\(X\\), is as follows:\n\n\\[Y = \\beta_0 + \\beta_1 X + \\epsilon\\]\n\nThis breaks the problem down into three main components, and estimates two parameters:\n\n\\(\\beta_1\\) - The slope, estimating the effect that \\(X\\) has on the outcome, \\(Y\\).\n\\(\\beta_0\\) - The intercept, estimating the average value of \\(Y\\) when \\(X = 0\\).\n\\(\\epsilon\\) - The error term (the unexplained variance), capturing the remaining variance in the outcome \\(Y\\) that is not explained by the rest of the model."
   },
   {
     "objectID": "index.html#calculating-the-regression-slope-beta_1",
@@ -126,11 +133,32 @@
     "text": "Predicting the Outcome (\\(\\hat{y}\\))\n\\[\\hat{y}_i = \\beta_0 + \\beta_1 x_i \\]"
   },
   {
-    "objectID": "index.html#putting-it-all-together",
-    "href": "index.html#putting-it-all-together",
+    "objectID": "index.html#its-just-a-regression-with-more-variables",
+    "href": "index.html#its-just-a-regression-with-more-variables",
     "title": "Linear Regression from Scratch",
-    "section": "Putting it All Together",
-    "text": "Putting it All Together\n\nAt its heart, regression is relatively simple. It is just fitting a line of best fit to your data.\nThe component parts of a regression model, which allow us to estimate the effect of \\(X\\) on \\(Y\\), are really just estimating how much of the variance in \\(Y\\) can be explained by \\(X\\), by estimating how the two vary together.\nLinear regression is not magic (though it is often so effective that I continue to feel like it is kind of magic).\n\nThe magic was within you all along (it’s theory, you build good theory and that makes good regressions)."
+    "section": "It’s Just a Regression With More Variables!",
+    "text": "It’s Just a Regression With More Variables!\n\\[Y = \\beta_0 + \\beta_1 X_1 + \\beta_2 X_2 + ... + \\beta_n X_n + \\epsilon\\]"
+  },
+  {
+    "objectID": "index.html#what-we-havent-covered",
+    "href": "index.html#what-we-havent-covered",
+    "title": "Linear Regression from Scratch",
+    "section": "What We Haven’t Covered",
+    "text": "What We Haven’t Covered\n\nModel interpretation - Reading regression tables, understanding coefficients\nModel evaluation - \\(R^2\\), Root Mean Squared Error (RMSE)\nAssumptions of linear regression - Linearity, independence, homoscedasticity, no multicollinearity\nModel diagnostics"
+  },
+  {
+    "objectID": "index.html#the-magic-was-within-you-all-along",
+    "href": "index.html#the-magic-was-within-you-all-along",
+    "title": "Linear Regression from Scratch",
+    "section": "The Magic Was Within You All Along",
+    "text": "The Magic Was Within You All Along\n\nAt its heart, regression is relatively simple. It is just fitting a line of best fit to your data.\nThe component parts of a regression model fit together to estimate the explained variance (the intercept and slope), and the unexplained variance (the error term). This allows us to make predictions and quantify the uncertainty of those predictions.\nLinear regression is not magic (even if it often feels that way).\n\nThe magic comes from good theory, good data, and attention to detail (but mostly good theory)."
+  },
+  {
+    "objectID": "index.html#further-resources",
+    "href": "index.html#further-resources",
+    "title": "Linear Regression from Scratch",
+    "section": "Further Resources",
+    "text": "Further Resources\n\nMLU-Explain - Linear Regression\nJeremy Balka (jbstatistics) - Simple Linear Regression\nJosh Starmer (StatQuest) - Linear Regression and Linear Models\nJeremy Balka (jbstatistics) - Deriving the Least Squares Estimators of the Slope and Intercept\nAndrew Gelman, Jennifer Hill, & Aki Vehtari - Regression & Other Stories"
   },
   {
     "objectID": "index.html#references",
