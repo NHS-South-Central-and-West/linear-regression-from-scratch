@@ -13,18 +13,18 @@ X <- df$hours_studied
 y <- df$exam_score
 
 # get summary stats
-n <- length(x)
-x_mean <- mean(x)
+n <- length(X)
+X_mean <- mean(X)
 y_mean <- mean(y)
 
 # calculate slope (b1)
-beta_1 <- sum((x - x_mean) * (y - y_mean)) / sum((x - x_mean)^2)
+beta_1 <- sum((X - X_mean) * (y - y_mean)) / sum((X - X_mean)^2)
 
 # calculate intercept (b0)
-beta_0 <- y_mean - beta_1 * x_mean
+beta_0 <- y_mean - beta_1 * X_mean
 
 # predict y
-y_pred <- beta_0 + beta_1 * x
+y_pred <- beta_0 + beta_1 * X
 
 # Compare with lm()
 model <- lm(exam_score ~ hours_studied, data = df)

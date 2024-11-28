@@ -57,7 +57,7 @@ Get in Loser, We're **Fitting Lines to Data**
 - OLS finds the line of best fit by minimising the total distance between the line and all observed values. The distance between the line, which represents the model's fitted values (or the predicted value of $Y$ given $X$) and each observed value in the data is known as the residual.
 - All paths lead to minimising the residuals.
 
-## Visualising the Outcome Distribution {.center}
+## Visualising the Outcome Variance {.center}
 
 ```{r}
 #| label: outcome-dist
@@ -68,7 +68,7 @@ df |>
   labs(x = "Exam Score", y = NULL)
 ```
 
-## Visualising the Outcome Distribution {.center}
+## Visualising the Outcome Variance {.center}
 
 ```{r}
 #| label: filtered-outcome-dist
@@ -81,10 +81,21 @@ df |>
   labs(x = "Exam Score", y = NULL)
 ```
 
-## Visualising the Covariance {.center}
+## Visualising the Predictor Variance {.center}
 
 ```{r}
-#| label: variance
+#| label: predictor-dist
+
+df |> 
+  ggplot(aes(x = hours_studied)) +
+  geom_histogram(binwidth = 1) +
+  labs(x = "Hours Studied", y = NULL)
+```
+
+## Visualising their Covariance {.center}
+
+```{r}
+#| label: covariance
 
 df |> 
   ggplot(aes(x = hours_studied, y = exam_score)) +
@@ -221,14 +232,12 @@ df |>
 
 ## Minimising the Residuals {.center}
 
-- A regression line must pass through the data by taking the path that minimises the residuals for each fitted value. 
-  - But a line that minimises the residuals in one area may lead to increases in the residual in another area of the data. This is an optimisation problem!
 - The least squares estimator takes the residual value of all of the regression's predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.
   - Squaring the value of each residual ensures sure that all values are positive, so that they don't cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS). 
   - $\text{RSS} = \sum_{i=1}^n (y_i - (\beta_0 + \beta_1 x_i))^2$
 - Finding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!
 
-## Solve $\beta_0$ and $\beta_1$; Minimise RSS {.center .smaller}
+## Solve for $\beta_0$ and $\beta_1$; Minimise RSS {.center .smaller}
 
 - $\text{Residual Sum of Squares (RSS)} = \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
 
@@ -272,7 +281,7 @@ $$Y = \beta_0 + \beta_1 X + \epsilon$$
 
 - This breaks the problem down into three main components, and estimates two parameters:
   - $\beta_1$ - The slope, estimating the effect that $X$ has on the outcome, $Y$. 
-  - $\beta_0$ - The intercept, estimating the average value of $Y$ when $X = 0$. and the intercept ($beta_0$)
+  - $\beta_0$ - The intercept, estimating the average value of $Y$ when $X = 0$.
   - $\epsilon$ - The error term (the unexplained variance), capturing the remaining variance in the outcome $Y$ that is not explained by the rest of the model.
 
 ## Calculating the Regression Slope ($\beta_1$) {.center}
@@ -290,16 +299,39 @@ $$\hat{y}_i = \beta_0 + \beta_1 x_i $$
 
 # Let's Write Some Code! {data-background-color="#425563" data-verticator="#E8EDEE"}
 
-# Adding Variables to Our Model {data-background-color="#425563" data-verticator="#E8EDEE"}
+# From Simple to Multiple Regression {data-background-color="#425563" data-verticator="#E8EDEE"}
 
-I've Got All These Variables, What if I Just Regressed Them?
+What Happens When We Add More Predictors?
 
-## Putting it All Together {.center}
+## It's Just a Regression With More Variables! {.center}
+
+$$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_n X_n + \epsilon$$
+
+# Wrapping Up {data-background-color="#425563" data-verticator="#E8EDEE"}
+
+Where Next, Magic Math Man?
+
+## What We Haven't Covered {.center}
+
+- Model interpretation - Reading regression tables, understanding coefficients
+- Model evaluation - $R^2$, Root Mean Squared Error (RMSE)
+- Assumptions of linear regression - Linearity, independence, homoscedasticity, no multicollinearity
+- Model diagnostics
+
+## The Magic Was Within You All Along {.center}
 
 - At its heart, regression is relatively simple. It is just fitting a line of best fit to your data.
-- The component parts of a regression model, which allow us to estimate the effect of $X$ on $Y$, are really just estimating how much of the variance in $Y$ can be explained by $X$, by estimating how the two vary together.
-- Linear regression is not magic (though it is often so effective that I continue to feel like it is kind of magic). 
-  - The magic was within you all along (it's theory, you build good theory and that makes good regressions).
+- The component parts of a regression model fit together to estimate the explained variance (the intercept and slope), and the unexplained variance (the error term). This allows us to make predictions and quantify the uncertainty of those predictions.
+- Linear regression is not magic (even if it often feels that way). 
+  - The magic comes from good theory, good data, and attention to detail (but mostly good theory).
+
+## Further Resources {.center}
+
+- MLU-Explain - [Linear Regression](https://mlu-explain.github.io/linear-regression/)
+- Jeremy Balka (jbstatistics) - [Simple Linear Regression](https://youtube.com/playlist?list=PLvxOuBpazmsND0vmkP1ECjTloiVz-pXla&si=kZcNgcWkb6E8170_)
+- Josh Starmer (StatQuest) - [Linear Regression and Linear Models](https://youtube.com/playlist?list=PLblh5JKOoLUIzaEkCLIUxQFjPIlapw8nU&si=rN7wtllmY0wAMbFa)
+- Jeremy Balka (jbstatistics) - [Deriving the Least Squares Estimators of the Slope and Intercept](https://youtu.be/ewnc1cXJmGA?si=MC3l-OC-9EZow2UF)
+- Andrew Gelman, Jennifer Hill, & Aki Vehtari - [Regression & Other Stories](https://users.aalto.fi/~ave/ROS.pdf)
 
 # Thank You!
 
