@@ -13,7 +13,6 @@ X <- df$hours_studied
 y <- df$exam_score
 
 # get summary stats
-n <- length(X)
 X_mean <- mean(X)
 y_mean <- mean(y)
 
@@ -39,3 +38,9 @@ beta_1
 # lm results
 print(model_coef)
 summary(model)
+
+# lm predictions
+model$fitted.values
+
+# calculated predictions
+y_pred
