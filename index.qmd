@@ -45,7 +45,7 @@ Get in Loser, We're **Fitting Lines to Data**
 
 - It is possible to make predictions or estimate effects between quantities of interest by analysing how they vary, both independently and together.
 - The extent to which the predictor variable, $X$, and the outcome, $Y$, move together is called "covariance".
-  - A positive covariance indicates that the value of $Y$ increases when $X$ increases, and a negative covariance indicates that $Y$ decreases when $X$ decreases.
+  - A positive covariance indicates that the values of $X$ and $Y$ tend to increase and decrease together, while a negative covariance indicates that when $X$ decreases $Y$ increases.
 - Regression fits a line through data that estimate how the outcome variable changes when the value of the predictor variable(s) change. Finding the line that does the most effective job of passing through the data helps describe the relationship between the variables, or predict the outcome from the predictors.
 - This doesn't sound like much, but it's a surprisingly powerful idea.
 
@@ -234,39 +234,37 @@ df |>
 
 - The least squares estimator takes the residual value of all of the regression's predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.
   - Squaring the value of each residual ensures sure that all values are positive, so that they don't cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS). 
-  - $\text{RSS} = \sum_{i=1}^n (y_i - (\beta_0 + \beta_1 x_i))^2$
+  - $\text{RSS} = \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
 - Finding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!
 
 ## Solve for $\beta_0$ and $\beta_1$; Minimise RSS {.center .smaller}
 
-- $\text{Residual Sum of Squares (RSS)} = \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
+$$\min_{\hat\beta_0,\hat\beta_1} \sum_{i=1}^n \left( y_i - (\hat\beta_0 + \hat\beta_1 x_i) \right)^2$$
 
 - Minimising RSS gives us the line that best fits the data, but we don't know what $\beta_0$ or $\beta_1$ are!
 
-- Minimize RSS (Solve for $\beta_0$, then $\beta_1$)
-
 ::::::{.columns}
-:::::{.column}
+::::::{.column}
 
+- **Solving for $\beta_0$:**
 
-  1. $\frac{\partial}{\partial \beta_0} \text{RSS} = \frac{\partial}{\partial \beta_0} \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
-  2. $\frac{\partial}{\partial \beta_0} \text{RSS} = -2 \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)$
-  3. $\sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right) = 0$
-  4. $n \beta_0 + \beta_1 \sum_{i=1}^n x_i = \sum_{i=1}^n y_i$
-  5. $\beta_0 = \bar{y} - \beta_1 \bar{x}$
+- Differentiate: $\frac{\partial}{\partial \hat{\beta}_0} \text{RSS} = -2 \sum_{i=1}^n \left( y_i - (\hat{\beta}_0 + \hat{\beta}_1 x_i) \right)$
+  
+- Solve: $\hat\beta_0 = \bar{y} - \hat\beta_1 \bar{x}$
 
 :::::
-:::::{.column}
-  
-  1. $\frac{\partial}{\partial \beta_1} \text{RSS} = \frac{\partial}{\partial \beta_1} \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
-  2. $\frac{\partial}{\partial \beta_1} \text{RSS} = -2 \sum_{i=1}^n x_i \left( y_i - (\beta_0 + \beta_1 x_i) \right)$
-  3. $\sum_{i=1}^n x_i \left( y_i - (\beta_0 + \beta_1 x_i) \right) = 0$
-  4. $\beta_1 = \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2}$
+::::::{.column}
+
+- **Solving for $\beta_1$:**
+
+- Differentiate: $\frac{\partial}{\partial \hat{\beta}_1} \text{RSS} = -2 \sum_{i=1}^n x_i \left( y_i - (\hat{\beta}_0 + \hat{\beta}_1 x_i) \right)$
+
+- Solve: $\hat{\beta}_1 = \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2}$
 
 :::::
 ::::::
 
-- Final Coefficients - $\beta_1 = \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2} = \frac{\text{Cov}(X, Y)}{\text{Var}(X)}$ ; $\beta_0 = \bar{y} - \beta_1 \bar{x}$
+- Final coefficients: $\beta_1 = \frac{\text{Cov}(X, Y)}{\text{Var}(X)}, \quad \beta_0 = \bar{y} - \beta_1 \bar{x}$
 
 
 # The Components of Simple Linear Regression {data-background-color="#425563" data-verticator="#E8EDEE"}
@@ -275,14 +273,19 @@ Our good friends $\beta_1$, $\beta_0$, and $\epsilon$.
 
 ## The Most Perfect Little Equation {.center}
 
-- The formula for a simple linear regression model, predicting $Y$ with one predictor $X$, is as follows: 
+- The formula for a simple linear regression model, predicting $Y$ with one predictor $X$: 
 
-$$Y = \beta_0 + \beta_1 X + \epsilon$$
+$$
+Y = 
+\underbrace{\vphantom{\beta_0} \overset{\color{#41B6E6}{\text{Intercept}}}{\color{#41B6E6}{\beta_0}} + 
+\overset{\color{#005EB8}{\text{Slope}}}{\color{#005EB8}{\beta_1}}X \space \space}_{\text{Explained Variance}} + 
+\overset{\mathstrut \color{#ED8B00}{\text{Error}}}{\underset{\text{Unexplained}}{\color{#ED8B00}{\epsilon}}}
+$$
 
-- This breaks the problem down into three main components, and estimates two parameters:
+- This breaks the problem down into three components, and estimates two parameters:
   - $\beta_1$ - The slope, estimating the effect that $X$ has on the outcome, $Y$. 
   - $\beta_0$ - The intercept, estimating the average value of $Y$ when $X = 0$.
-  - $\epsilon$ - The error term (the unexplained variance), capturing the remaining variance in the outcome $Y$ that is not explained by the rest of the model.
+  - $\epsilon$ - The error term, capturing the remaining variance in the outcome $Y$ that is not explained by the rest of the model.
 
 ## Calculating the Regression Slope ($\beta_1$) {.center}
 
