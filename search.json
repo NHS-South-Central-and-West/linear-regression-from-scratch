@@ -49,46 +49,32 @@
     "text": "Visualising their Covariance\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
   },
   {
-    "objectID": "index.html#fitting-a-regression-line",
-    "href": "index.html#fitting-a-regression-line",
+    "objectID": "index.html#fitting-a-regression",
+    "href": "index.html#fitting-a-regression",
     "title": "Linear Regression from Scratch",
-    "section": "Fitting a Regression Line",
-    "text": "Fitting a Regression Line\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_smooth(\n    method = lm, se = FALSE, linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
+    "section": "Fitting a Regression",
+    "text": "Fitting a Regression\n\n\nmodel &lt;- lm(exam_score ~ hours_studied, data = df)\n\ndf &lt;-\n  df |&gt; \n  mutate(\n    fitted = model$fitted.values, \n    residual = model$residuals\n    )\n\ndf |&gt; \n  select(hours_studied, exam_score, fitted, residual) |&gt; \n  janitor::clean_names(case = \"title\") |&gt; \n  slice_sample(n = 10) |&gt; \n  gt() |&gt; \n  fmt_number(columns = c(Fitted, Residual), decimals = 2) |&gt; \n  cols_align(align = \"center\", columns = everything())\n\n\n\n\n\n\n\n\nHours Studied\nExam Score\nFitted\nResidual\n\n\n\n\n18\n65\n66.49\n−1.49\n\n\n20\n65\n67.08\n−2.08\n\n\n25\n66\n68.54\n−2.54\n\n\n24\n70\n68.25\n1.75\n\n\n27\n71\n69.12\n1.88\n\n\n23\n69\n67.95\n1.05\n\n\n28\n74\n69.41\n4.59\n\n\n11\n62\n64.45\n−2.45\n\n\n18\n61\n66.49\n−5.49\n\n\n10\n61\n64.16\n−3.16"
   },
   {
     "objectID": "index.html#finding-the-line-of-best-fit",
     "href": "index.html#finding-the-line-of-best-fit",
     "title": "Linear Regression from Scratch",
     "section": "Finding the Line of “Best Fit”",
-    "text": "Finding the Line of “Best Fit”\n\n\nmodel &lt;- lm(exam_score ~ hours_studied, data = df)\n\ndf &lt;-\n  df |&gt; \n  mutate(\n    fitted = model$fitted.values, \n    residual = model$residuals\n    )\n\ndf |&gt; \n  select(hours_studied, exam_score, fitted, residual) |&gt; \n  janitor::clean_names(case = \"title\") |&gt; \n  slice_sample(n = 10) |&gt; \n  gt() |&gt; \n  fmt_number(columns = c(Fitted, Residual), decimals = 2) |&gt; \n  cols_align(align = \"center\", columns = everything())\n\n\n\n\n\n\n\n\nHours Studied\nExam Score\nFitted\nResidual\n\n\n\n\n24\n69\n68.25\n0.75\n\n\n15\n64\n65.62\n−1.62\n\n\n17\n67\n66.20\n0.80\n\n\n18\n66\n66.49\n−0.49\n\n\n15\n63\n65.62\n−2.62\n\n\n20\n73\n67.08\n5.92\n\n\n13\n69\n65.03\n3.97\n\n\n21\n65\n67.37\n−2.37\n\n\n23\n70\n67.95\n2.05\n\n\n7\n62\n63.28\n−1.28"
+    "text": "Finding the Line of “Best Fit”\n\n\ncoefs &lt;- model$coefficients\n\ndf &lt;- \n  df |&gt; \n  mutate(\n    fitted_under = coefs[1] + (coefs[2] - 0.1) * hours_studied,\n    residual_under = exam_score - fitted_under\n    )\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted_under), \n    linewidth = 1, colour = \"#005EB8\"\n  ) +\n  labs(\n    x = \"Hours Studied\", y = \"Exam Score\"\n  )"
   },
   {
     "objectID": "index.html#finding-the-line-of-best-fit-1",
     "href": "index.html#finding-the-line-of-best-fit-1",
     "title": "Linear Regression from Scratch",
     "section": "Finding the Line of “Best Fit”",
-    "text": "Finding the Line of “Best Fit”\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted, \n      xend = hours_studied, yend = fitted + residual\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted), \n    linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
+    "text": "Finding the Line of “Best Fit”\n\n\ndf &lt;- \n  df |&gt; \n  mutate(\n    fitted_over = coefs[1] + (coefs[2] + 0.2) * hours_studied,\n    residual_over = exam_score - fitted_over\n    )\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted_over), \n    linewidth = 1, colour = \"#005EB8\"\n  ) +\n  labs(\n    x = \"Hours Studied\", y = \"Exam Score\"\n  )"
   },
   {
     "objectID": "index.html#finding-the-line-of-best-fit-2",
     "href": "index.html#finding-the-line-of-best-fit-2",
     "title": "Linear Regression from Scratch",
     "section": "Finding the Line of “Best Fit”",
-    "text": "Finding the Line of “Best Fit”\n\n\ndf |&gt;\n  slice_sample(n = 10) |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted, \n      xend = hours_studied, yend = fitted + residual\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted), \n    linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
-  },
-  {
-    "objectID": "index.html#finding-the-line-of-best-fit-3",
-    "href": "index.html#finding-the-line-of-best-fit-3",
-    "title": "Linear Regression from Scratch",
-    "section": "Finding the Line of “Best Fit”",
-    "text": "Finding the Line of “Best Fit”\n\n\ndf |&gt;\n  slice_sample(n = 100) |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted, \n      xend = hours_studied, yend = fitted + residual\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted), \n    linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
-  },
-  {
-    "objectID": "index.html#finding-the-line-of-best-fit-4",
-    "href": "index.html#finding-the-line-of-best-fit-4",
-    "title": "Linear Regression from Scratch",
-    "section": "Finding the Line of “Best Fit”",
-    "text": "Finding the Line of “Best Fit”\n\n\ndf |&gt;\n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted, \n      xend = hours_studied, yend = fitted + residual\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted), \n    linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
+    "text": "Finding the Line of “Best Fit”\n\n\ndf |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_smooth(\n    method = lm, se = FALSE, linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(\n    x = \"Hours Studied\", y = \"Exam Score\"\n    )"
   },
   {
     "objectID": "index.html#minimising-the-residuals",
@@ -96,6 +82,34 @@
     "title": "Linear Regression from Scratch",
     "section": "Minimising the Residuals",
     "text": "Minimising the Residuals\n\nThe least squares estimator takes the residual value of all of the regression’s predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.\n\nSquaring the value of each residual ensures sure that all values are positive, so that they don’t cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS).\n\\(\\text{RSS} = \\sum_{i=1}^n \\left( y_i - (\\beta_0 + \\beta_1 x_i) \\right)^2\\)\n\nFinding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!"
+  },
+  {
+    "objectID": "index.html#minimising-the-residuals-1",
+    "href": "index.html#minimising-the-residuals-1",
+    "title": "Linear Regression from Scratch",
+    "section": "Minimising the Residuals",
+    "text": "Minimising the Residuals\n\n\nset.seed(42)\n\n\ndf |&gt; \n  slice_sample(n = 50) |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted_under, \n      xend = hours_studied, yend = fitted_under + residual_under\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted_under), \n    linewidth = 1, colour = \"#005EB8\"\n  ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
+  },
+  {
+    "objectID": "index.html#minimising-the-residuals-2",
+    "href": "index.html#minimising-the-residuals-2",
+    "title": "Linear Regression from Scratch",
+    "section": "Minimising the Residuals",
+    "text": "Minimising the Residuals\n\n\nset.seed(42)\n\ndf |&gt; \n  slice_sample(n = 50) |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted_over, \n      xend = hours_studied, yend = fitted_over + residual_over\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted_over), \n    linewidth = 1, colour = \"#005EB8\"\n  ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
+  },
+  {
+    "objectID": "index.html#minimising-the-residuals-3",
+    "href": "index.html#minimising-the-residuals-3",
+    "title": "Linear Regression from Scratch",
+    "section": "Minimising the Residuals",
+    "text": "Minimising the Residuals\n\n\nset.seed(42)\n\ndf |&gt;\n  slice_sample(n = 50) |&gt; \n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted, \n      xend = hours_studied, yend = fitted + residual\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted), \n    linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
+  },
+  {
+    "objectID": "index.html#minimising-the-residuals-4",
+    "href": "index.html#minimising-the-residuals-4",
+    "title": "Linear Regression from Scratch",
+    "section": "Minimising the Residuals",
+    "text": "Minimising the Residuals\n\n\ndf |&gt;\n  ggplot(aes(x = hours_studied, y = exam_score)) +\n  geom_segment(\n    aes(\n      x = hours_studied, y= fitted, \n      xend = hours_studied, yend = fitted + residual\n      ), \n    linewidth = 1, color = \"#ED8B00\"\n    ) +\n  geom_point(shape = 21, fill = \"white\", size = 1.5, stroke = 1) +\n  geom_line(\n    aes(x = hours_studied, y = fitted), \n    linewidth = 1, colour = \"#005EB8\"\n    ) +\n  labs(x = \"Hours Studied\", y = \"Exam Score\")"
   },
   {
     "objectID": "index.html#solve-for-beta_0-and-beta_1-minimise-rss",
