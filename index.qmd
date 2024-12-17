@@ -103,21 +103,7 @@ df |>
   labs(x = "Hours Studied", y = "Exam Score")
 ```
 
-## Fitting a Regression Line {.center}
-
-```{r}
-#| label: regression-line
-
-df |> 
-  ggplot(aes(x = hours_studied, y = exam_score)) +
-  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
-  geom_smooth(
-    method = lm, se = FALSE, linewidth = 1, colour = "#005EB8"
-    ) +
-  labs(x = "Hours Studied", y = "Exam Score")
-```
-
-## Finding the Line of "Best Fit" {.center}
+## Fitting a Regression {.center}
 
 ```{r}
 #| label: fitted-values
@@ -143,77 +129,137 @@ df |>
 ## Finding the Line of "Best Fit" {.center}
 
 ```{r}
-#| label: residuals
+#| label: fit-under
+
+coefs <- model$coefficients
+
+df <- 
+  df |> 
+  mutate(
+    fitted_under = coefs[1] + (coefs[2] - 0.1) * hours_studied,
+    residual_under = exam_score - fitted_under
+    )
 
 df |> 
   ggplot(aes(x = hours_studied, y = exam_score)) +
-  geom_segment(
-    aes(
-      x = hours_studied, y= fitted, 
-      xend = hours_studied, yend = fitted + residual
-      ), 
-    linewidth = 1, color = "#ED8B00"
-    ) +
   geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
   geom_line(
-    aes(x = hours_studied, y = fitted), 
+    aes(x = hours_studied, y = fitted_under), 
     linewidth = 1, colour = "#005EB8"
-    ) +
-  labs(x = "Hours Studied", y = "Exam Score")
+  ) +
+  labs(
+    x = "Hours Studied", y = "Exam Score"
+  )
 ```
 
 ## Finding the Line of "Best Fit" {.center}
 
 ```{r}
-#| label: residuals-sample
+#| label: fit-over
 
-df |>
-  slice_sample(n = 10) |> 
+df <- 
+  df |> 
+  mutate(
+    fitted_over = coefs[1] + (coefs[2] + 0.2) * hours_studied,
+    residual_over = exam_score - fitted_over
+    )
+
+
+df |> 
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_line(
+    aes(x = hours_studied, y = fitted_over), 
+    linewidth = 1, colour = "#005EB8"
+  ) +
+  labs(
+    x = "Hours Studied", y = "Exam Score"
+  )
+```
+
+## Finding the Line of "Best Fit" {.center}
+
+```{r}
+#| label: regression-line
+
+df |> 
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_smooth(
+    method = lm, se = FALSE, linewidth = 1, colour = "#005EB8"
+    ) +
+  labs(
+    x = "Hours Studied", y = "Exam Score"
+    )
+```
+
+## Minimising the Residuals {.center}
+
+- The least squares estimator takes the residual value of all of the regression's predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.
+  - Squaring the value of each residual ensures sure that all values are positive, so that they don't cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS). 
+  - $\text{RSS} = \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
+- Finding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!
+
+## Minimising the Residuals {.center}
+
+```{r}
+#| label: residual-under
+
+set.seed(42)
+
+
+df |> 
+  slice_sample(n = 50) |> 
   ggplot(aes(x = hours_studied, y = exam_score)) +
   geom_segment(
     aes(
-      x = hours_studied, y= fitted, 
-      xend = hours_studied, yend = fitted + residual
+      x = hours_studied, y= fitted_under, 
+      xend = hours_studied, yend = fitted_under + residual_under
       ), 
     linewidth = 1, color = "#ED8B00"
     ) +
   geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
   geom_line(
-    aes(x = hours_studied, y = fitted), 
+    aes(x = hours_studied, y = fitted_under), 
     linewidth = 1, colour = "#005EB8"
-    ) +
+  ) +
   labs(x = "Hours Studied", y = "Exam Score")
 ```
 
-## Finding the Line of "Best Fit" {.center}
+## Minimising the Residuals {.center}
 
 ```{r}
-#| label: residuals-bigger-sample
+#| label: residual-over
 
-df |>
-  slice_sample(n = 100) |> 
+set.seed(42)
+
+df |> 
+  slice_sample(n = 50) |> 
   ggplot(aes(x = hours_studied, y = exam_score)) +
   geom_segment(
     aes(
-      x = hours_studied, y= fitted, 
-      xend = hours_studied, yend = fitted + residual
+      x = hours_studied, y= fitted_over, 
+      xend = hours_studied, yend = fitted_over + residual_over
       ), 
     linewidth = 1, color = "#ED8B00"
     ) +
   geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
   geom_line(
-    aes(x = hours_studied, y = fitted), 
+    aes(x = hours_studied, y = fitted_over), 
     linewidth = 1, colour = "#005EB8"
-    ) +
+  ) +
   labs(x = "Hours Studied", y = "Exam Score")
 ```
 
-## Finding the Line of "Best Fit" {.center}
+## Minimising the Residuals {.center}
 
 ```{r}
-#| label: residuals-full-sample
+#| label: residual
+
+set.seed(42)
 
 df |>
+  slice_sample(n = 50) |> 
   ggplot(aes(x = hours_studied, y = exam_score)) +
   geom_segment(
     aes(
@@ -232,10 +278,25 @@ df |>
 
 ## Minimising the Residuals {.center}
 
-- The least squares estimator takes the residual value of all of the regression's predictions, squares them, and then sums them to get a single value that captures how well the model fits to the data.
-  - Squaring the value of each residual ensures sure that all values are positive, so that they don't cancel each other out, and gives greater weight to larger residuals, making sure that the fitted line accounts for values that are far away from the mean. This value is known as the residual sum of squares (RSS). 
-  - $\text{RSS} = \sum_{i=1}^n \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
-- Finding the line that minimises the RSS produces an unbiased linear estimator (assuming that the regression assumptions are all met), or the line of best fit!
+```{r}
+#| label: residual-full
+
+df |>
+  ggplot(aes(x = hours_studied, y = exam_score)) +
+  geom_segment(
+    aes(
+      x = hours_studied, y= fitted, 
+      xend = hours_studied, yend = fitted + residual
+      ), 
+    linewidth = 1, color = "#ED8B00"
+    ) +
+  geom_point(shape = 21, fill = "white", size = 1.5, stroke = 1) +
+  geom_line(
+    aes(x = hours_studied, y = fitted), 
+    linewidth = 1, colour = "#005EB8"
+    ) +
+  labs(x = "Hours Studied", y = "Exam Score")
+```
 
 ## Solve for $\beta_0$ and $\beta_1$; Minimise RSS {.center .smaller}
 
