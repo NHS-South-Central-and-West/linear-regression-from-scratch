@@ -100,16 +100,20 @@ code>a, code>span {
 
 .reveal code {
   font-family: 'Fira Code', monospace;
-  font-size: .7em;
+  font-size: .8em;
 }
 
 .reveal p>code {
-  font-size: .7em;
+  font-size: .8em;
 }
 
 .reveal pre code {
   font-weight: 300;
-  font-size: .7em;
+  font-size: .8em;
+}
+
+.reveal pre.sourceCode code {
+  font-size: .8em
 }
 
 .panel-tabset li>a {
